@@ -1,15 +1,10 @@
 import pandas as pd
-import numpy as np
-import math
 import torch
-from torchinfo import summary
 from torch.utils.data import DataLoader
-from sklearn.model_selection import train_test_split
-import sentence_transformers
-from sentence_transformers import SentenceTransformer, CrossEncoder, models, InputExample, losses, evaluation, SentencesDataset
-from gensim.models import KeyedVectors
-from transformers import AutoTokenizer, AutoModel, AutoModelForMaskedLM
-import gc
+from sentence_transformers import SentenceTransformer, InputExample, losses, evaluation, SentencesDataset
+import sys
+import ast
+import os
 
 
 def train(pretrained_model_name, train_file, val_file, model_save_path,
@@ -57,15 +52,6 @@ def train(pretrained_model_name, train_file, val_file, model_save_path,
     train_dataset = SentencesDataset(train_examples, model)
     train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
 
-    # Delete the previous data to save memory
-    del df_train
-    del df_val
-    del df
-    del data
-    del target
-    del positive
-    del negative
-
     # Train the model
     model.fit(train_objectives=[(train_dataloader, train_loss)],
             optimizer_class=optimizer_class,
@@ -84,14 +70,25 @@ def train(pretrained_model_name, train_file, val_file, model_save_path,
 
 if __name__ == '__main__':
 
-    # Set the pretrained model
-    pretrained_model_name = 'bert-ancient-chinese'
+    
+    pretrained_model_name = sys.argv[1]
+
+    quantiles = sys.argv[2]
+    quantiles = ast.literal_eval(quantiles)
+    
+    triplet_option = sys.argv[3]
+
+    learning_rate = float(sys.argv[4])
+    warmup_n_epoch = int(sys.argv[5])
 
     # Set parameters for training set
-    quantiles = (0.01, 0.99)
     quantiles_str = str(round(quantiles[0]*1000)) + '-' + str(round((quantiles[1]*1000)))
-    triplet_option = 'random'   # 'top', 'random'
-    train_file = './dataset/triplets/train_triplet_' + 'quantiles=' + quantiles_str + '_' + triplet_option + '.csv'
+    seed = 42
+    if triplet_option == 'random':
+        train_file = './dataset/triplets/train_triplet_' + 'quantiles=' + quantiles_str + '_random_seed=' + str(seed) + '.csv'
+    elif triplet_option == 'top':
+        train_file = './dataset/triplets/train_triplet_' + 'quantiles=' + quantiles_str + '_top_' + pretrained_model_name + '.csv'
+
     df_train = pd.read_csv(train_file, encoding='utf-8-sig')
     train_length = len(df_train)
     
@@ -103,25 +100,29 @@ if __name__ == '__main__':
         val_file = './dataset/pairs/val_pair_from_triplet_' + 'quantiles=' + quantiles_str + '.csv'
 
     # Set hyperparameters for training
+    optimizer_params = {'lr': learning_rate}
     batch_size = 32
-    optimizer_class = torch.optim.Adam
-    optimizer_params = {'lr': 1e-5}
-    epochs = 5
+    epochs = 3
     evaluation_steps = 10
-    warmup_n_epoch = 3
-
     steps_per_epoch = round(train_length / batch_size)
     warmup_steps = steps_per_epoch * warmup_n_epoch
     checkpoint_save_steps = steps_per_epoch
 
+    optimizer_class = torch.optim.Adam
+
     # Set paths
-    model_save_path = './models/sbert/finetuned/' + triplet_option + '_n=1_' + '_quantiles=' + quantiles_str + '/'
+    model_save_path = './models/sbert/finetuned/' + triplet_option + '_n=1' + '_quantiles=' + quantiles_str + '/'
     model_save_path += pretrained_model_name + '_batch=' + str(batch_size) + '_warmepoch=' + str(warmup_n_epoch) + '_lr=' + str(optimizer_params['lr']) + '/'                                                                                                                       
+    print(f"Model saved to {model_save_path}")
     checkpoint_path = model_save_path + 'checkpoint/'
-    
-    # Training
-    train(pretrained_model_name, train_file, val_file, model_save_path,
-          batch_size, optimizer_class, optimizer_params, epochs, 
-          warmup_steps, evaluation_steps, checkpoint_save_steps)
+
+    # Check if path has already existed
+    if os.path.exists(model_save_path):
+        print("Model has already been trained with these parameters.")
+    else:
+        # Training
+        train(pretrained_model_name, train_file, val_file, model_save_path,
+            batch_size, optimizer_class, optimizer_params, epochs, 
+            warmup_steps, evaluation_steps, checkpoint_save_steps)
 
 
