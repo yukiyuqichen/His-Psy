@@ -1,3 +1,4 @@
+.gitignore
 *.ipynb
 models/sbert/*
 models/tokenizer/*
