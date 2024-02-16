@@ -7,7 +7,7 @@ wv_model_paths:
 
 tf_model_names:
   'Jihuai/bert-ancient-chinese': 'bert-ancient'
-  # 'KoichiYasuoka/roberta-classical-chinese-base-char': 'roberta-ancient'
+  'KoichiYasuoka/roberta-classical-chinese-base-char': 'roberta-ancient'
   'KoichiYasuoka/roberta-classical-chinese-large-char': 'roberta-ancient'
   'SIKU-BERT/sikuroberta': 'roberta'
   'uer/sbert-base-chinese-nli': 'sbert'
