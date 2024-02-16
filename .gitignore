@@ -1,4 +1,5 @@
 .gitignore
+.gitattributes
 *.ipynb
 models/sbert/*
 models/tokenizer/*
