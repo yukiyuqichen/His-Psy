@@ -6,18 +6,11 @@ wv_model_paths:
   'glove': './models/word_vector/glove/glove.model'
 
 tf_model_names:
-  'Jihuai/bert-ancient-chinese': 'bert-ancient'
-  'KoichiYasuoka/roberta-classical-chinese-base-char': 'roberta-ancient'
-  'KoichiYasuoka/roberta-classical-chinese-large-char': 'roberta-ancient'
-  'SIKU-BERT/sikuroberta': 'roberta'
-  'uer/sbert-base-chinese-nli': 'sbert'
-  'moka-ai/m3e-base': 'sbert'
+  'Jihuai/bert-ancient-chinese': 'bert'
+  'ethanyt/guwenbert-base': 'roberta'
+  'ethanyt/guwenbert-large': 'roberta'
+  'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2': 'sbert'
+  'shibing624/text2vec-base-chinese': 'macbert-cosent'
   'shibing624/text2vec-base-chinese-paraphrase': 'ernie-cosent'
-  './models/sbert/shortpara_bert_sup_triplet_64batch/1epoch': 'sbert-ancient'
-
-
-
-tf_cross_model_names:
-  'Jihuai/bert-ancient-chinese': 'bert-ancient'
-
+  'GanymedeNil/text2vec-large-chinese': 'lert-cosent'
 
