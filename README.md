@@ -1,2 +1,2 @@
 # His-Psy
- Historical Psychology for Chinese Text.
+Surveying the Dead Minds: Historical-Psychological Text Analysis with Contextualized Construct Representation (CCR) for Classical Chinese
